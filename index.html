@@ -1,0 +1,346 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EVO X | Admin Panel</title>
+    
+    <!-- App Theme Color for Mobile Header -->
+    <meta name="theme-color" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Web App Manifest for Installing as App -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkVWTyBYIEFkbWluIFBhbmVsIiwKICAic2hvcnRfbmFtZSI6ICJBRE1JTiIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMTExODI3IiwKICAidGhlbWVfY29sb3IiOiAiIzIwOGQ1ZSIKfQ==">
+    
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { --pipo: #208d5e; }
+        .bg-pipo { background-color: var(--pipo); }
+        .text-pipo { color: var(--pipo); }
+        /* Smooth Scrollbar for Mobile */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: #208d5e; border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+    </style>
+</head>
+<body class="bg-gray-950 text-white font-sans min-h-screen select-none antialiased">
+
+<audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-84.wav" preload="auto"></audio>
+
+<!-- App Install Banner (Top Fixed) -->
+<div id="install-banner" class="hidden sticky top-0 z-50 bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-2.5 text-xs font-bold flex justify-between items-center px-4 shadow-lg backdrop-blur-md">
+    <div class="flex items-center gap-2">
+        <i class="fa-solid fa-mobile-screen-button text-base animate-bounce"></i>
+        <span>অ্যাডমিন অ্যাপ হিসেবে ইনস্টল করুন</span>
+    </div>
+    <button onclick="installApp()" class="bg-white text-black px-3.5 py-1.5 rounded-full text-[11px] font-extrabold active:scale-95 transition shadow">Install</button>
+</div>
+
+<!-- 🔒 ১. সিকিউর পাসওয়ার্ড লগইন স্ক্রিন -->
+<div id="admin-login-screen" class="flex flex-col items-center justify-center min-h-screen px-4 py-8">
+    <div class="bg-gray-900/80 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-gray-800 w-full max-w-sm text-center">
+        <div class="w-20 h-20 bg-pipo/15 text-pipo rounded-full flex items-center justify-center mx-auto mb-4 text-4xl border-2 border-pipo/40 shadow-lg shadow-pipo/10">
+            <i class="fa-solid fa-fire-flame-curved"></i>
+        </div>
+        <h2 class="text-2xl font-black mb-1 tracking-wider text-pipo">EVO X ADMIN</h2>
+        <p class="text-xs text-gray-400 mb-6">নিরাপদ প্রবেশাধিকার পেতে পিন দিন</p>
+        
+        <input type="password" id="admin-pass-input" placeholder="Enter Secret Password" class="w-full bg-gray-950 border border-gray-800 p-3.5 rounded-2xl text-center text-sm mb-4 outline-none focus:border-pipo text-white tracking-widest transition" onkeyup="if(event.key === 'Enter') checkAdminPassword()">
+        
+        <button onclick="checkAdminPassword()" class="w-full bg-pipo hover:bg-emerald-600 text-white font-bold py-3.5 rounded-2xl text-xs active:scale-95 transition shadow-lg shadow-pipo/20">
+            Unlock Dashboard
+        </button>
+    </div>
+</div>
+
+<!-- ⚙️ ২. আসল অ্যাডমিন কন্ট্রোল প্যানেল -->
+<div id="admin-dashboard" class="hidden container mx-auto px-3 py-4 max-w-5xl">
+    <!-- Header Card -->
+    <div class="flex justify-between items-center mb-5 bg-gray-900/90 backdrop-blur-md p-4 rounded-2xl border border-gray-800 shadow-xl">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-pipo/20 border border-pipo/40 flex items-center justify-center text-pipo text-lg">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div>
+                <h2 class="font-black text-sm sm:text-base text-pipo tracking-wider">ADMIN CONTROL CENTER</h2>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-[10px] text-gray-400 font-medium">System Active</span>
+                </div>
+            </div>
+        </div>
+        <button onclick="lockAdmin()" class="bg-red-600/80 hover:bg-red-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
+            <i class="fa-solid fa-power-off"></i> Lock
+        </button>
+    </div>
+
+    <!-- Control Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <!-- System Settings -->
+        <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 shadow-md">
+            <h3 class="font-bold border-b border-gray-800 pb-2 mb-3 text-xs text-pipo flex items-center gap-2">
+                <i class="fa-solid fa-sliders"></i> System Config
+            </h3>
+            <div class="flex gap-2 mb-3">
+                <button onclick="toggleServer(true)" class="flex-1 bg-green-600/80 hover:bg-green-600 py-2 rounded-xl text-[10px] font-bold active:scale-95 transition">ONLINE</button>
+                <button onclick="toggleServer(false)" class="flex-1 bg-red-600/80 hover:bg-red-600 py-2 rounded-xl text-[10px] font-bold active:scale-95 transition">OFFLINE</button>
+            </div>
+            <input type="text" id="adm-notice" placeholder="Marquee Notice" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-2 rounded-xl text-xs outline-none focus:border-pipo">
+            <div class="space-y-2 mb-3">
+                <input type="text" id="adm-bkash" placeholder="bKash No." class="w-full bg-gray-950 border border-gray-800 p-2.5 rounded-xl text-xs outline-none focus:border-pipo">
+                <input type="text" id="adm-nagad" placeholder="Nagad No." class="w-full bg-gray-950 border border-gray-800 p-2.5 rounded-xl text-xs outline-none focus:border-pipo">
+                <input type="text" id="adm-rocket" placeholder="Rocket No." class="w-full bg-gray-950 border border-gray-800 p-2.5 rounded-xl text-xs outline-none focus:border-pipo">
+            </div>
+            <button onclick="saveSettings()" class="w-full bg-pipo text-white py-2.5 rounded-xl text-xs font-bold active:scale-95 transition">Update Core Settings</button>
+        </div>
+
+        <!-- Game Cards -->
+        <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 shadow-md">
+            <h3 class="font-bold border-b border-gray-800 pb-2 mb-3 text-xs text-blue-400 flex items-center gap-2">
+                <i class="fa-solid fa-gamepad"></i> Game Cards
+            </h3>
+            <input type="text" id="adm-gname" placeholder="Game Title" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-2 rounded-xl text-xs outline-none focus:border-blue-500">
+            <input type="text" id="adm-gimg" placeholder="Banner Image Link" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-3 rounded-xl text-xs outline-none focus:border-blue-500">
+            <button onclick="addGame()" class="w-full bg-blue-600 text-white py-2.5 rounded-xl text-xs font-bold mb-4 active:scale-95 transition">Register Card</button>
+            
+            <h4 class="text-[10px] font-bold text-gray-400 mb-2">Active Games:</h4>
+            <div id="adm-game-list" class="space-y-2 max-h-32 overflow-y-auto pr-1"></div>
+        </div>
+
+        <!-- Banner & Social -->
+        <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 shadow-md flex flex-col justify-between">
+            <div>
+                <h3 class="font-bold border-b border-gray-800 pb-2 mb-3 text-xs text-purple-400 flex items-center gap-2">
+                    <i class="fa-solid fa-images"></i> Promo Banner & Social
+                </h3>
+                <input type="text" id="adm-burl" placeholder="Slide Cover Photo Link" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-2 rounded-xl text-xs outline-none focus:border-purple-500">
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <input type="text" id="adm-tg" placeholder="Telegram User" class="bg-gray-950 border border-gray-800 p-2.5 rounded-xl text-xs outline-none focus:border-purple-500">
+                    <input type="text" id="adm-wa" placeholder="WhatsApp Num" class="bg-gray-950 border border-gray-800 p-2.5 rounded-xl text-xs outline-none focus:border-purple-500">
+                </div>
+            </div>
+            <button onclick="updateBannerConfig()" class="w-full bg-purple-600 text-white py-2.5 rounded-xl text-xs font-bold active:scale-95 transition">Push Config Update</button>
+        </div>
+    </div>
+
+    <!-- Package Management -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 shadow-md">
+            <h3 class="font-bold border-b border-gray-800 pb-2 mb-3 text-xs text-emerald-400 flex items-center gap-2">
+                <i class="fa-solid fa-square-plus"></i> Add Diamonds Pack
+            </h3>
+            <select id="adm-icategory" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-2 rounded-xl text-xs text-white outline-none focus:border-emerald-500"></select>
+            <input type="text" id="adm-iname" placeholder="Diamond Content (e.g. 115 Diamonds)" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-2 rounded-xl text-xs outline-none focus:border-emerald-500">
+            <input type="number" id="adm-iprice" placeholder="Price Amount (৳)" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-3 rounded-xl text-xs outline-none focus:border-emerald-500">
+            <button onclick="addItem()" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-xs font-bold active:scale-95 transition">Confirm Bundle</button>
+        </div>
+        
+        <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 shadow-md">
+            <h3 class="font-bold border-b border-gray-800 pb-2 mb-2 text-xs text-amber-400">Database Bundle List</h3>
+            <div id="adm-item-list" class="space-y-2 max-h-44 overflow-y-auto pr-1"></div>
+        </div>
+    </div>
+
+    <!-- Incoming Orders -->
+    <h3 class="font-bold mb-3 text-sm text-gray-300 flex items-center gap-2">
+        <i class="fa-solid fa-receipt text-pipo"></i> Incoming Customer Orders
+    </h3>
+    <div id="adm-orders" class="space-y-3 mb-24"></div>
+</div>
+
+<script>
+    const ADMIN_PASSWORD = "tawsif728027";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD2J363sc8-9e5fFh2tdQvqM4OLDkJJYLo",
+        authDomain: "evo-x-gaming.firebaseapp.com",
+        databaseURL: "https://evo-x-gaming-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "evo-x-gaming",
+        storageBucket: "evo-x-gaming.firebasestorage.app",
+        messagingSenderId: "501674992039",
+        appId: "1:501674992039:web:5a7bc97449dfd0c22b1682"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let orderCountCache = 0;
+
+    function checkAdminPassword() {
+        const inputPass = document.getElementById('admin-pass-input').value.trim();
+
+        if (inputPass === ADMIN_PASSWORD) {
+            document.getElementById('admin-login-screen').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            initAdminDataListener();
+        } else {
+            alert("পাসওয়ার্ড ভুল হয়েছে! সঠিক পাসওয়ার্ড দিন।");
+        }
+    }
+
+    function lockAdmin() {
+        document.getElementById('admin-dashboard').classList.add('hidden');
+        document.getElementById('admin-login-screen').classList.remove('hidden');
+        document.getElementById('admin-pass-input').value = "";
+    }
+
+    function initAdminDataListener() {
+        db.ref('/').on('value', (snap) => {
+            const data = snap.val() || {};
+            
+            if(data.settings) {
+                if(data.settings.notice) document.getElementById('adm-notice').value = data.settings.notice;
+                if(data.settings.bkash) document.getElementById('adm-bkash').value = data.settings.bkash;
+                if(data.settings.nagad) document.getElementById('adm-nagad').value = data.settings.nagad;
+                if(data.settings.rocket) document.getElementById('adm-rocket').value = data.settings.rocket;
+                if(data.settings.bannerUrl) document.getElementById('adm-burl').value = data.settings.bannerUrl;
+                if(data.settings.tgUsername) document.getElementById('adm-tg').value = data.settings.tgUsername;
+                if(data.settings.waNumber) document.getElementById('adm-wa').value = data.settings.waNumber;
+            }
+
+            const games = data.games || {};
+            const admGameList = document.getElementById('adm-game-list');
+            const selectCategoryDropdown = document.getElementById('adm-icategory');
+            
+            if(admGameList) admGameList.innerHTML = "";
+            if(selectCategoryDropdown) selectCategoryDropdown.innerHTML = "";
+
+            Object.keys(games).forEach(gameId => {
+                const g = games[gameId];
+                if(admGameList) {
+                    admGameList.innerHTML += `
+                        <div class="flex justify-between items-center text-xs p-2.5 rounded-xl bg-gray-950 border border-gray-800">
+                            <span class="truncate font-semibold">${g.name}</span>
+                            <button onclick="deleteGame('${gameId}')" class="text-red-400 p-1 active:scale-125 transition"><i class="fa-solid fa-trash"></i></button>
+                        </div>`;
+                }
+                if(selectCategoryDropdown) {
+                    selectCategoryDropdown.innerHTML += `<option value="${gameId}">${g.name}</option>`;
+                }
+            });
+
+            const items = data.items || {};
+            const admItemCont = document.getElementById('adm-item-list');
+            if(admItemCont) {
+                admItemCont.innerHTML = "";
+                Object.keys(items).forEach(id => {
+                    const i = items[id];
+                    const targetGameName = games[i.category]?.name || "Default";
+                    admItemCont.innerHTML += `
+                        <div class="p-2.5 border border-gray-800 rounded-xl flex justify-between items-center text-xs bg-gray-950">
+                            <span>[${targetGameName}] ${i.name} (৳${i.price})</span>
+                            <button onclick="deleteItem('${id}')" class="text-red-400 p-1 active:scale-125 transition"><i class="fa-solid fa-trash"></i></button>
+                        </div>`;
+                });
+            }
+
+            const orders = data.orders || {};
+            const currentOrdersCount = Object.keys(orders).length;
+            if(orderCountCache !== 0 && currentOrdersCount > orderCountCache) {
+                let sound = document.getElementById('notif-sound');
+                if(sound) { sound.currentTime = 0; sound.play().catch(e=>console.log("Audio failed")); }
+            }
+            orderCountCache = currentOrdersCount;
+
+            const admOrd = document.getElementById('adm-orders');
+            if(admOrd) {
+                admOrd.innerHTML = "";
+                Object.keys(orders).reverse().forEach(id => {
+                    const o = orders[id];
+                    admOrd.innerHTML += `
+                        <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-lg">
+                            <div class="text-xs space-y-1">
+                                <p class="font-black text-pipo text-sm">${o.item} <span class="text-gray-400 text-xs">(${o.method || 'bKash'})</span></p>
+                                <p>UID: <span class="font-bold text-yellow-400 select-all">${o.pid}</span> | Price: ৳${o.price}</p>
+                                <p>TrxID: <span class="bg-black/60 px-2 py-0.5 rounded-md border border-gray-800 text-green-400 font-mono select-all uppercase">${o.trx}</span></p>
+                                <p class="text-[10px] text-gray-400">${o.userEmail} | ${o.time || ''}</p>
+                                <p class="font-bold ${o.status==='Approved'?'text-green-400':o.status==='Rejected'?'text-red-400':'text-amber-400'}">Status: ${o.status}</p>
+                            </div>
+                            <div class="flex sm:flex-col gap-2 w-full sm:w-auto">
+                                <button onclick="updateStatus('${id}', 'Approved')" class="flex-1 sm:flex-none bg-green-600 hover:bg-green-500 text-white text-[11px] px-3.5 py-2 rounded-xl font-bold active:scale-95 transition">Approve</button>
+                                <button onclick="updateStatus('${id}', 'Rejected')" class="flex-1 sm:flex-none bg-red-600 hover:bg-red-500 text-white text-[11px] px-3.5 py-2 rounded-xl font-bold active:scale-95 transition">Reject</button>
+                                <button onclick="deleteOrder('${id}')" class="bg-gray-800 hover:bg-gray-700 text-white text-[11px] px-3.5 py-2 rounded-xl active:scale-95 transition">Delete</button>
+                            </div>
+                        </div>`;
+                });
+            }
+        });
+    }
+
+    function toggleServer(status) { db.ref('settings/isOnline').set(status); }
+
+    function saveSettings() {
+        const updates = {
+            'settings/notice': document.getElementById('adm-notice').value,
+            'settings/bkash': document.getElementById('adm-bkash').value,
+            'settings/nagad': document.getElementById('adm-nagad').value,
+            'settings/rocket': document.getElementById('adm-rocket').value
+        };
+        db.ref().update(updates).then(() => alert("সেটিংস সফলভাবে আপডেট হয়েছে!"));
+    }
+
+    function addGame() {
+        const name = document.getElementById('adm-gname').value.trim();
+        const img = document.getElementById('adm-gimg').value.trim();
+        if(!name || !img) return alert("গেমের নাম ও ইমেজের লিঙ্ক দিন!");
+        db.ref('games').push({ name, img }).then(() => {
+            alert("গেম যোগ করা হয়েছে!");
+            document.getElementById('adm-gname').value = "";
+            document.getElementById('adm-gimg').value = "";
+        });
+    }
+
+    function deleteGame(id) { if(confirm("গেমটি রিমুভ করবেন?")) db.ref('games/' + id).remove(); }
+
+    function updateBannerConfig() {
+        const updates = {
+            'settings/bannerUrl': document.getElementById('adm-burl').value.trim(),
+            'settings/tgUsername': document.getElementById('adm-tg').value.trim(),
+            'settings/waNumber': document.getElementById('adm-wa').value.trim()
+        };
+        db.ref().update(updates).then(() => alert("ব্যানার ও সোশ্যাল ডাটা সেভ হয়েছে!"));
+    }
+
+    function addItem() {
+        const category = document.getElementById('adm-icategory').value;
+        const name = document.getElementById('adm-iname').value.trim();
+        const price = document.getElementById('adm-iprice').value;
+        if(!category || !name || !price) return alert("সব তথ্য পূরণ করুন!");
+        db.ref('items').push({ category, name, price: Number(price) }).then(() => {
+            alert("প্যাকেজ যুক্ত হয়েছে!");
+            document.getElementById('adm-iname').value = "";
+            document.getElementById('adm-iprice').value = "";
+        });
+    }
+
+    function deleteItem(id) { if(confirm("প্যাকেজটি রিমুভ করবেন?")) db.ref('items/' + id).remove(); }
+    function updateStatus(id, status) { db.ref('orders/' + id + '/status').set(status); }
+    function deleteOrder(id) { if(confirm("অর্ডারটি মুছে ফেলতে চান?")) db.ref('orders/' + id).remove(); }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('install-banner').classList.remove('hidden');
+    });
+
+    function installApp() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    document.getElementById('install-banner').classList.add('hidden');
+                }
+                deferredPrompt = null;
+            });
+        }
+    }
+</script>
+</body>
+</html>
