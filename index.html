@@ -1,32 +1,27 @@
-﻿<!DOCTYPE html>
-<html lang="bn">
+<!DOCTYPE html>
+<html lang="en-BD">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EVO X | Admin Panel</title>
     
-    <!-- App Theme Color for Mobile Header -->
     <meta name="theme-color" content="#111827">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <!-- Web App Manifest for Installing as App -->
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkVWTyBYIEFkbWluIFBhbmVsIiwKICAic2hvcnRfbmFtZSI6ICJBRE1JTiIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMTExODI3IiwKICAidGhlbWVfY29sb3IiOiAiIzIwOGQ1ZSIKfQ==">
-    
     <!-- Firebase SDK (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    
     <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <style>
-        :root { --pipo: #208d5e; }
+        :root { --pipo: #0f52bd; }
         .bg-pipo { background-color: var(--pipo); }
         .text-pipo { color: var(--pipo); }
-        /* Smooth Scrollbar for Mobile */
+        
         ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #208d5e; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #0f52bd; border-radius: 10px; }
         ::-webkit-scrollbar-track { background: #1f2937; }
     </style>
 </head>
@@ -34,34 +29,26 @@
 
 <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-84.wav" preload="auto"></audio>
 
-<!-- App Install Banner (Top Fixed) -->
-<div id="install-banner" class="hidden sticky top-0 z-50 bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-2.5 text-xs font-bold flex justify-between items-center px-4 shadow-lg backdrop-blur-md">
-    <div class="flex items-center gap-2">
-        <i class="fa-solid fa-mobile-screen-button text-base animate-bounce"></i>
-        <span>অ্যাডমিন অ্যাপ হিসেবে ইনস্টল করুন</span>
-    </div>
-    <button onclick="installApp()" class="bg-white text-black px-3.5 py-1.5 rounded-full text-[11px] font-extrabold active:scale-95 transition shadow">Install</button>
-</div>
-
-<!-- 🔒 ১. সিকিউর পাসওয়ার্ড লগইন স্ক্রিন -->
+<!-- ১. সিকিউর পাসওয়ার্ড লগইন স্ক্রিন -->
 <div id="admin-login-screen" class="flex flex-col items-center justify-center min-h-screen px-4 py-8">
     <div class="bg-gray-900/80 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-gray-800 w-full max-w-sm text-center">
-        <div class="w-20 h-20 bg-pipo/15 text-pipo rounded-full flex items-center justify-center mx-auto mb-4 text-4xl border-2 border-pipo/40 shadow-lg shadow-pipo/10">
-            <i class="fa-solid fa-fire-flame-curved"></i>
+        <div class="w-20 h-20 bg-pipo/15 text-pipo rounded-full flex items-center justify-center mx-auto mb-4 text-4xl border-2 border-pipo/40 shadow-lg">
+            <i class="fa-solid fa-shield-halved"></i>
         </div>
-        <h2 class="text-2xl font-black mb-1 tracking-wider text-pipo">EVO X ADMIN</h2>
+        <h2 class="text-2xl font-black mb-1 tracking-wider text-pipo">ADMIN PANEL</h2>
         <p class="text-xs text-gray-400 mb-6">নিরাপদ প্রবেশাধিকার পেতে পিন দিন</p>
         
         <input type="password" id="admin-pass-input" placeholder="Enter Secret Password" class="w-full bg-gray-950 border border-gray-800 p-3.5 rounded-2xl text-center text-sm mb-4 outline-none focus:border-pipo text-white tracking-widest transition" onkeyup="if(event.key === 'Enter') checkAdminPassword()">
         
-        <button onclick="checkAdminPassword()" class="w-full bg-pipo hover:bg-emerald-600 text-white font-bold py-3.5 rounded-2xl text-xs active:scale-95 transition shadow-lg shadow-pipo/20">
+        <button onclick="checkAdminPassword()" class="w-full bg-pipo hover:bg-blue-700 text-white font-bold py-3.5 rounded-2xl text-xs active:scale-95 transition shadow-lg">
             Unlock Dashboard
         </button>
     </div>
 </div>
 
-<!-- ⚙️ ২. আসল অ্যাডমিন কন্ট্রোল প্যানেল -->
+<!-- ২. আসল অ্যাডমিন কন্ট্রোল প্যানেল -->
 <div id="admin-dashboard" class="hidden container mx-auto px-3 py-4 max-w-5xl">
+    
     <!-- Header Card -->
     <div class="flex justify-between items-center mb-5 bg-gray-900/90 backdrop-blur-md p-4 rounded-2xl border border-gray-800 shadow-xl">
         <div class="flex items-center gap-3">
@@ -71,8 +58,8 @@
             <div>
                 <h2 class="font-black text-sm sm:text-base text-pipo tracking-wider">ADMIN CONTROL CENTER</h2>
                 <div class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <span class="text-[10px] text-gray-400 font-medium">System Active</span>
+                    <span id="server-status-dot" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span id="server-status-label" class="text-[10px] text-gray-400 font-medium">System Active</span>
                 </div>
             </div>
         </div>
@@ -83,6 +70,7 @@
 
     <!-- Control Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        
         <!-- System Settings -->
         <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 shadow-md">
             <h3 class="font-bold border-b border-gray-800 pb-2 mb-3 text-xs text-pipo flex items-center gap-2">
@@ -130,16 +118,16 @@
         </div>
     </div>
 
-    <!-- Package Management -->
+    <!-- Package Management & Direct User Balance Config -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 shadow-md">
-            <h3 class="font-bold border-b border-gray-800 pb-2 mb-3 text-xs text-emerald-400 flex items-center gap-2">
+            <h3 class="font-bold border-b border-gray-800 pb-2 mb-3 text-xs text-blue-400 flex items-center gap-2">
                 <i class="fa-solid fa-square-plus"></i> Add Diamonds Pack
             </h3>
-            <select id="adm-icategory" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-2 rounded-xl text-xs text-white outline-none focus:border-emerald-500"></select>
-            <input type="text" id="adm-iname" placeholder="Diamond Content (e.g. 115 Diamonds)" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-2 rounded-xl text-xs outline-none focus:border-emerald-500">
-            <input type="number" id="adm-iprice" placeholder="Price Amount (৳)" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-3 rounded-xl text-xs outline-none focus:border-emerald-500">
-            <button onclick="addItem()" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-xs font-bold active:scale-95 transition">Confirm Bundle</button>
+            <select id="adm-icategory" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-2 rounded-xl text-xs text-white outline-none focus:border-blue-500"></select>
+            <input type="text" id="adm-iname" placeholder="Diamond Content (e.g. 115 Diamonds)" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-2 rounded-xl text-xs outline-none focus:border-blue-500">
+            <input type="number" id="adm-iprice" placeholder="Price Amount (৳)" class="w-full bg-gray-950 border border-gray-800 p-2.5 mb-3 rounded-xl text-xs outline-none focus:border-blue-500">
+            <button onclick="addItem()" class="w-full bg-blue-600 text-white py-2.5 rounded-xl text-xs font-bold active:scale-95 transition">Confirm Bundle</button>
         </div>
         
         <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 shadow-md">
@@ -148,9 +136,21 @@
         </div>
     </div>
 
+    <!-- Add Money Requests -->
+    <h3 class="font-bold mb-3 text-sm text-green-400 flex items-center gap-2">
+        <i class="fa-solid fa-wallet text-green-400"></i> Incoming Add Money Requests (Balance Control)
+    </h3>
+    <div id="adm-addmoney-list" class="space-y-3 mb-6"></div>
+
+    <!-- Registered Users Direct Balance List -->
+    <h3 class="font-bold mb-3 text-sm text-blue-400 flex items-center gap-2">
+        <i class="fa-solid fa-users text-blue-400"></i> All User Wallet Balances (Set / Reset Zero)
+    </h3>
+    <div id="adm-users-list" class="space-y-2 mb-6 max-h-56 overflow-y-auto pr-1"></div>
+
     <!-- Incoming Orders -->
     <h3 class="font-bold mb-3 text-sm text-gray-300 flex items-center gap-2">
-        <i class="fa-solid fa-receipt text-pipo"></i> Incoming Customer Orders
+        <i class="fa-solid fa-receipt text-pipo"></i> Incoming Customer Game Orders
     </h3>
     <div id="adm-orders" class="space-y-3 mb-24"></div>
 </div>
@@ -167,20 +167,19 @@
         messagingSenderId: "501674992039",
         appId: "1:501674992039:web:5a7bc97449dfd0c22b1682"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     let orderCountCache = 0;
 
     function checkAdminPassword() {
         const inputPass = document.getElementById('admin-pass-input').value.trim();
-
         if (inputPass === ADMIN_PASSWORD) {
             document.getElementById('admin-login-screen').classList.add('hidden');
             document.getElementById('admin-dashboard').classList.remove('hidden');
             initAdminDataListener();
         } else {
-            alert("পাসওয়ার্ড ভুল হয়েছে! সঠিক পাসওয়ার্ড দিন।");
+            alert("পাসওয়ার্ড ভুল হয়েছে!");
         }
     }
 
@@ -194,6 +193,14 @@
         db.ref('/').on('value', (snap) => {
             const data = snap.val() || {};
             
+            const isOnline = data.settings?.isOnline !== false;
+            const dotEl = document.getElementById('server-status-dot');
+            const labelEl = document.getElementById('server-status-label');
+            if(dotEl && labelEl) {
+                dotEl.className = isOnline ? "w-2 h-2 rounded-full bg-green-500 animate-pulse" : "w-2 h-2 rounded-full bg-red-500";
+                labelEl.innerText = isOnline ? "System Active (ONLINE)" : "System Offline (OFFLINE)";
+            }
+
             if(data.settings) {
                 if(data.settings.notice) document.getElementById('adm-notice').value = data.settings.notice;
                 if(data.settings.bkash) document.getElementById('adm-bkash').value = data.settings.bkash;
@@ -217,7 +224,7 @@
                     admGameList.innerHTML += `
                         <div class="flex justify-between items-center text-xs p-2.5 rounded-xl bg-gray-950 border border-gray-800">
                             <span class="truncate font-semibold">${g.name}</span>
-                            <button onclick="deleteGame('${gameId}')" class="text-red-400 p-1 active:scale-125 transition"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="deleteGame('${gameId}')" class="text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
                         </div>`;
                 }
                 if(selectCategoryDropdown) {
@@ -235,7 +242,56 @@
                     admItemCont.innerHTML += `
                         <div class="p-2.5 border border-gray-800 rounded-xl flex justify-between items-center text-xs bg-gray-950">
                             <span>[${targetGameName}] ${i.name} (৳${i.price})</span>
-                            <button onclick="deleteItem('${id}')" class="text-red-400 p-1 active:scale-125 transition"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="deleteItem('${id}')" class="text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
+                        </div>`;
+                });
+            }
+
+            const addMoneyReqs = data.addMoneyRequests || {};
+            const addMoneyCont = document.getElementById('adm-addmoney-list');
+            if(addMoneyCont) {
+                addMoneyCont.innerHTML = "";
+                if(Object.keys(addMoneyReqs).length === 0) {
+                    addMoneyCont.innerHTML = `<p class="text-xs text-gray-500 italic">কোনো ব্যালেন্স অ্যাড অনুরোধ নেই।</p>`;
+                }
+                Object.keys(addMoneyReqs).reverse().forEach(id => {
+                    const req = addMoneyReqs[id];
+                    const isApproved = req.status === 'Approved';
+                    addMoneyCont.innerHTML += `
+                        <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-lg">
+                            <div class="text-xs space-y-1">
+                                <p class="font-black text-green-400 text-sm">Request Amount: ৳${req.amount} <span class="text-gray-400 text-xs">(${req.method})</span></p>
+                                <p>User: <span class="font-semibold text-blue-300">${req.userEmail}</span></p>
+                                <p>TrxID: <span class="bg-black/60 px-2 py-0.5 rounded-md border border-gray-800 text-green-400 font-mono select-all uppercase">${req.trx}</span></p>
+                                <p class="text-[10px] text-gray-400">${req.time || ''}</p>
+                                <p class="font-bold ${req.status==='Approved'?'text-green-400':req.status==='Rejected'?'text-red-400':'text-amber-400'}">Status: ${req.status}</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                                <button onclick="approveCustomBalance('${id}', '${req.userId}', ${req.amount})" ${isApproved ? 'disabled class="bg-gray-700 text-gray-400 text-[11px] px-3.5 py-2 rounded-xl font-bold cursor-not-allowed"' : 'class="bg-green-600 hover:bg-green-500 text-white text-[11px] px-3.5 py-2 rounded-xl font-bold"'}>${isApproved ? 'Approved' : 'Approve (৳' + req.amount + ')'}</button>
+                                <button onclick="setCustomAmountPrompt('${id}', '${req.userId}')" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] px-3.5 py-2 rounded-xl font-bold">Edit Amount</button>
+                                <button onclick="resetUserBalanceToZero('${req.userId}')" class="bg-amber-600 hover:bg-amber-500 text-white text-[11px] px-3 py-2 rounded-xl font-bold">Set 0</button>
+                                <button onclick="deleteAddMoneyReq('${id}')" class="bg-gray-800 hover:bg-gray-700 text-white text-[11px] px-3 py-2 rounded-xl">Delete</button>
+                            </div>
+                        </div>`;
+                });
+            }
+
+            const users = data.users || {};
+            const usersListCont = document.getElementById('adm-users-list');
+            if(usersListCont) {
+                usersListCont.innerHTML = "";
+                Object.keys(users).forEach(uid => {
+                    const u = users[uid];
+                    usersListCont.innerHTML += `
+                        <div class="bg-gray-900/60 p-3 rounded-xl border border-gray-800 flex justify-between items-center text-xs">
+                            <div>
+                                <p class="font-bold text-gray-200">${u.email || 'User: ' + uid}</p>
+                                <p class="text-[10px] text-green-400 font-bold">Current Balance: ৳${u.balance || 0}</p>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <button onclick="promptUserBalanceChange('${uid}', ${u.balance || 0})" class="bg-blue-600 hover:bg-blue-500 px-2.5 py-1 rounded-lg text-[10px] font-bold">Change</button>
+                                <button onclick="resetUserBalanceToZero('${uid}')" class="bg-red-600 hover:bg-red-500 px-2.5 py-1 rounded-lg text-[10px] font-bold">Make 0</button>
+                            </div>
                         </div>`;
                 });
             }
@@ -244,7 +300,7 @@
             const currentOrdersCount = Object.keys(orders).length;
             if(orderCountCache !== 0 && currentOrdersCount > orderCountCache) {
                 let sound = document.getElementById('notif-sound');
-                if(sound) { sound.currentTime = 0; sound.play().catch(e=>console.log("Audio failed")); }
+                if(sound) { sound.currentTime = 0; sound.play().catch(e=>console.log(e)); }
             }
             orderCountCache = currentOrdersCount;
 
@@ -256,16 +312,16 @@
                     admOrd.innerHTML += `
                         <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-lg">
                             <div class="text-xs space-y-1">
-                                <p class="font-black text-pipo text-sm">${o.item} <span class="text-gray-400 text-xs">(${o.method || 'bKash'})</span></p>
+                                <p class="font-black text-pipo text-sm">${o.item} <span class="text-gray-400 text-xs">(${o.method})</span></p>
                                 <p>UID: <span class="font-bold text-yellow-400 select-all">${o.pid}</span> | Price: ৳${o.price}</p>
                                 <p>TrxID: <span class="bg-black/60 px-2 py-0.5 rounded-md border border-gray-800 text-green-400 font-mono select-all uppercase">${o.trx}</span></p>
                                 <p class="text-[10px] text-gray-400">${o.userEmail} | ${o.time || ''}</p>
                                 <p class="font-bold ${o.status==='Approved'?'text-green-400':o.status==='Rejected'?'text-red-400':'text-amber-400'}">Status: ${o.status}</p>
                             </div>
-                            <div class="flex sm:flex-col gap-2 w-full sm:w-auto">
-                                <button onclick="updateStatus('${id}', 'Approved')" class="flex-1 sm:flex-none bg-green-600 hover:bg-green-500 text-white text-[11px] px-3.5 py-2 rounded-xl font-bold active:scale-95 transition">Approve</button>
-                                <button onclick="updateStatus('${id}', 'Rejected')" class="flex-1 sm:flex-none bg-red-600 hover:bg-red-500 text-white text-[11px] px-3.5 py-2 rounded-xl font-bold active:scale-95 transition">Reject</button>
-                                <button onclick="deleteOrder('${id}')" class="bg-gray-800 hover:bg-gray-700 text-white text-[11px] px-3.5 py-2 rounded-xl active:scale-95 transition">Delete</button>
+                            <div class="flex gap-2">
+                                <button onclick="updateStatus('${id}', 'Approved')" class="bg-green-600 hover:bg-green-500 text-white text-[11px] px-3.5 py-2 rounded-xl font-bold">Approve</button>
+                                <button onclick="updateStatus('${id}', 'Rejected')" class="bg-red-600 hover:bg-red-500 text-white text-[11px] px-3.5 py-2 rounded-xl font-bold">Reject</button>
+                                <button onclick="deleteOrder('${id}')" class="bg-gray-800 hover:bg-gray-700 text-white text-[11px] px-3.5 py-2 rounded-xl">Delete</button>
                             </div>
                         </div>`;
                 });
@@ -273,7 +329,11 @@
         });
     }
 
-    function toggleServer(status) { db.ref('settings/isOnline').set(status); }
+    function toggleServer(status) {
+        db.ref('settings/isOnline').set(status).then(() => {
+            alert(status ? "সার্ভার সফলভাবে ONLINE করা হয়েছে!" : "সার্ভার OFFLINE করা হয়েছে!");
+        });
+    }
 
     function saveSettings() {
         const updates = {
@@ -282,21 +342,21 @@
             'settings/nagad': document.getElementById('adm-nagad').value,
             'settings/rocket': document.getElementById('adm-rocket').value
         };
-        db.ref().update(updates).then(() => alert("সেটিংস সফলভাবে আপডেট হয়েছে!"));
+        db.ref().update(updates).then(() => alert("সেটিংস আপডেট হয়েছে!"));
     }
 
     function addGame() {
         const name = document.getElementById('adm-gname').value.trim();
         const img = document.getElementById('adm-gimg').value.trim();
-        if(!name || !img) return alert("গেমের নাম ও ইমেজের লিঙ্ক দিন!");
+        if(!name || !img) return alert("গেমের নাম ও লিঙ্ক দিন!");
         db.ref('games').push({ name, img }).then(() => {
-            alert("গেম যোগ করা হয়েছে!");
+            alert("গেম যুক্ত হয়েছে!");
             document.getElementById('adm-gname').value = "";
             document.getElementById('adm-gimg').value = "";
         });
     }
 
-    function deleteGame(id) { if(confirm("গেমটি রিমুভ করবেন?")) db.ref('games/' + id).remove(); }
+    function deleteGame(id) { if(confirm("রিমুভ করবেন?")) db.ref('games/' + id).remove(); }
 
     function updateBannerConfig() {
         const updates = {
@@ -304,14 +364,14 @@
             'settings/tgUsername': document.getElementById('adm-tg').value.trim(),
             'settings/waNumber': document.getElementById('adm-wa').value.trim()
         };
-        db.ref().update(updates).then(() => alert("ব্যানার ও সোশ্যাল ডাটা সেভ হয়েছে!"));
+        db.ref().update(updates).then(() => alert("ব্যানার ও সোশ্যাল আপডেট হয়েছে!"));
     }
 
     function addItem() {
         const category = document.getElementById('adm-icategory').value;
         const name = document.getElementById('adm-iname').value.trim();
         const price = document.getElementById('adm-iprice').value;
-        if(!category || !name || !price) return alert("সব তথ্য পূরণ করুন!");
+        if(!category || !name || !price) return alert("সব পূরণ করুন!");
         db.ref('items').push({ category, name, price: Number(price) }).then(() => {
             alert("প্যাকেজ যুক্ত হয়েছে!");
             document.getElementById('adm-iname').value = "";
@@ -319,27 +379,50 @@
         });
     }
 
-    function deleteItem(id) { if(confirm("প্যাকেজটি রিমুভ করবেন?")) db.ref('items/' + id).remove(); }
+    function deleteItem(id) { if(confirm("রিমুভ করবেন?")) db.ref('items/' + id).remove(); }
+    
     function updateStatus(id, status) { db.ref('orders/' + id + '/status').set(status); }
-    function deleteOrder(id) { if(confirm("অর্ডারটি মুছে ফেলতে চান?")) db.ref('orders/' + id).remove(); }
+    function deleteOrder(id) { if(confirm("মুছে ফেলতে চান?")) db.ref('orders/' + id).remove(); }
 
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('install-banner').classList.remove('hidden');
-    });
-
-    function installApp() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    document.getElementById('install-banner').classList.add('hidden');
+    function approveCustomBalance(reqId, userId, amount) {
+        db.ref(`addMoneyRequests/${reqId}/status`).once('value').then((snap) => {
+            if(snap.val() === 'Approved') {
+                return alert("এই অনুরোধটি ইতিমধ্যে এপ্রুভ করা হয়েছে!");
+            }
+            db.ref(`users/${userId}/balance`).transaction((current) => (current || 0) + Number(amount), (err, committed) => {
+                if(committed) {
+                    db.ref(`addMoneyRequests/${reqId}/status`).set('Approved');
+                    alert(`৳${amount} সফলভাবে যোগ করা হয়েছে!`);
                 }
-                deferredPrompt = null;
+            });
+        });
+    }
+
+    function setCustomAmountPrompt(reqId, userId) {
+        const newAmt = prompt("কত টাকা দিতে চান লিখুন:", "0");
+        if(newAmt !== null && newAmt !== "") {
+            db.ref(`users/${userId}/balance`).set(Number(newAmt)).then(() => {
+                db.ref(`addMoneyRequests/${reqId}/status`).set('Approved');
+                alert(`ব্যালেন্স ৳${newAmt} সেট করা হয়েছে!`);
             });
         }
+    }
+
+    function resetUserBalanceToZero(userId) {
+        if(confirm("ব্যালেন্স শূন্য (0) করবেন?")) {
+            db.ref(`users/${userId}/balance`).set(0).then(() => alert("ব্যালেন্স ৳0 করা হয়েছে!"));
+        }
+    }
+
+    function promptUserBalanceChange(userId, currentBal) {
+        const newBal = prompt("নতুন ব্যালেন্স কত করতে চান?", currentBal);
+        if(newBal !== null && newBal !== "") {
+            db.ref(`users/${userId}/balance`).set(Number(newBal)).then(() => alert("আপডেট হয়েছে!"));
+        }
+    }
+
+    function deleteAddMoneyReq(id) {
+        if(confirm("মুছে ফেলতে চান?")) db.ref('addMoneyRequests/' + id).remove();
     }
 </script>
 </body>
